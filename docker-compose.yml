@@ -1,0 +1,38 @@
+version: '2.1'
+services:
+    postgres:
+        image: postgres:9.6
+        environment:
+            - POSTGRES_USER=airflow
+            - POSTGRES_PASSWORD=airflow
+            - POSTGRES_DB=airflow
+    mysql:
+        image: mysql:5.7
+        environment: 
+            - MYSQL_ROOT_PASSWORD=root
+        volumes:
+            - ./data:/data_mysql/ # mount the volume
+            - ./mysql.cnf:/etc/mysql/mysql.cnf # disable privileges for write access
+
+    webserver:
+        image: puckel/docker-airflow:latest #stable version
+        restart: always
+        depends_on: 
+            - postgres
+            - mysql
+        environment: 
+            - INSTALL_MYSQL=y # install mysql 
+            - LOAD_EX=n # load example data
+            - EXECUTOR=Local # use local executor
+        volumes: 
+            - ./dags:/usr/local/airflow/dags # dag files directory
+            - ./data:/usr/local/airflow/data_airflow # csv files directory
+            - ./sql:/usr/local/airflow/sql # sql files directory
+        ports: 
+            - "8080:8080" # expose port 8080
+        command: webserver
+        healthcheck:
+            test: ["CMD-SHELL", "[ -f /usr/local/airflow/airflow-webserver.pid ]"]
+            interval: 30s
+            timeout: 30s
+            retries: 3
