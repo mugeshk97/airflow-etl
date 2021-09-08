@@ -27,7 +27,7 @@ services:
         volumes: 
             - ./dags:/usr/local/airflow/dags # dag files directory
             - ./data:/usr/local/airflow/data_airflow # csv files directory
-            - ./sql:/usr/local/airflow/sql # sql files directory
+            - ./sql:/usr/local/airflow/sql_airflow # sql files directory
         ports: 
             - "8080:8080" # expose port 8080
         command: webserver
